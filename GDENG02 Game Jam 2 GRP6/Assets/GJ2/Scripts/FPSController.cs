@@ -6,6 +6,7 @@ using PlayerFPSControl; //  this is your generated namespace
 public class FPSController : MonoBehaviour
 {
     public float moveSpeed = 5f;
+    public float topDownMoveSpeed = 2f;
     public float mouseSensitivity = 2f;
     public float gravity = -9.81f;
     public float jumpHeight = 1.5f;
@@ -121,6 +122,7 @@ public class FPSController : MonoBehaviour
 
     void HandleMovement()
     {
+        float currentSpeed = isTopDown ? topDownMoveSpeed : moveSpeed;
         Vector3 move = transform.right * moveInput.x + transform.forward * moveInput.y;
         //controller.Move(move * moveSpeed * Time.deltaTime);
 
@@ -137,7 +139,7 @@ public class FPSController : MonoBehaviour
         else
         {
             // Normal movement
-            controller.Move(move * moveSpeed * Time.deltaTime);
+            controller.Move(move * currentSpeed * Time.deltaTime);
 
             if (dashCooldownTimer > 0f)
                 dashCooldownTimer -= Time.deltaTime;
@@ -203,6 +205,7 @@ public class FPSController : MonoBehaviour
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+            //isTopDown = false;
         }
         else
         {
@@ -211,6 +214,7 @@ public class FPSController : MonoBehaviour
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            //isTopDown = true;
         }
     }
 }
