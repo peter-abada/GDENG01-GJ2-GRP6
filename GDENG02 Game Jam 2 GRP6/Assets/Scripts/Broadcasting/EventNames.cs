@@ -50,6 +50,13 @@ public class EventNames {
 		public const string ON_FIRST_SCAN = "FIRST_TARGET_SCAN";
 		public const string ON_FINAL_SCAN = "ON_FINAL_SCAN";
 	}
+
+    public class GJ2_Events
+    {
+        public const string ON_HIT = "ON_HIT";
+        public const string ON_HEALTH_CHANGED = "ON_HEALTH_CHANGED";
+
+    }
 }
 
 
