@@ -57,6 +57,13 @@ public class EventNames {
         public const string ON_HEALTH_CHANGED = "ON_HEALTH_CHANGED";
 
     }
+
+    public static class MainMenuEvents
+    {
+        public const string ON_PLAY = "ON_PLAY";
+        public const string ON_CREDITS = "ON_CREDITS";
+        public const string ON_EXIT = "ON_EXIT";
+    }
 }
 
 
