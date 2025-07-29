@@ -41,6 +41,9 @@ public class EntityVisionMesh : MonoBehaviour
     public TMP_Text IsHiddenText;
     public TMP_Text InViewConeText;
 
+    public Quaternion EnemyRotation;
+    public Quaternion PlayerRotation;
+
     void Start()
     {
         if (!Player)
@@ -69,8 +72,8 @@ public class EntityVisionMesh : MonoBehaviour
         CheckIfHidden();
         CheckIfInViewCone();
 
-        TEST_SimpleMesh();
-        //DrawVerticesPosition();
+        //TEST_SimpleMesh();
+        DrawVerticesPosition();
 
         DisplayOnScreen();
     }
@@ -135,15 +138,7 @@ public class EntityVisionMesh : MonoBehaviour
         mesh.vertices = vertices;
         mesh.uv = uv;
         mesh.triangles = triangles;
-
-        Vector3 meshCenterOfMass = CalculateMeshCenter(vertices);
-
-        // Update the Rigidbody center of mass to the center of the mesh
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.centerOfMass = meshCenterOfMass;
-        }
+        
     }
     void InitializeMesh()
     {
@@ -155,7 +150,7 @@ public class EntityVisionMesh : MonoBehaviour
     {
         origin = Vector3.zero;
         fov = viewAngle;
-        angle = viewAngle * 0.5f;
+        angle = viewAngle / 2f;
         angleStep = fov / rayCount;
 
         vertices = new Vector3[rayCount + 1 + 1]; // 1 for origin, 1 for ray 0
@@ -168,6 +163,18 @@ public class EntityVisionMesh : MonoBehaviour
         ResetMeshData();
 
         Vector3 transformOffset = origin + heightOffset;
+        Vector3 targetDirection = Player.transform.forward;
+        Vector3 targetPosition = transform.position + targetDirection;
+        EnemyRotation = transform.rotation;
+        PlayerRotation = Player.transform.rotation;
+
+        Debug.DrawRay(transform.position, transform.forward, Color.blue);
+        //Debug.DrawRay(transform.position, Player.transform.forward, Color.green);//player
+        //transform.LookAt(Player.transform.forward);
+
+        Vector3 rotation = transform.forward;
+
+
         vertices[0] = transformOffset;
         int vertIndex = 1;
         int triangleIndex = 0;
@@ -181,7 +188,7 @@ public class EntityVisionMesh : MonoBehaviour
             RaycastHit hit;
 
 
-            Debug.DrawRay(transformOffset + transform.position, aimDirection * detectionRange, Color.red);
+            //Debug.DrawRay(transformOffset + transform.position, aimDirection * detectionRange, Color.red);
             if (Physics.Raycast(origin, aimDirection, out hit, detectionRange, layerMask))
             {
                 vertex = hit.point;
@@ -193,13 +200,13 @@ public class EntityVisionMesh : MonoBehaviour
 
 
                 vertices[vertIndex] = vertex;
-            if (i > 0)
-            {
-                triangles[triangleIndex + 0] = 0;
-                triangles[triangleIndex + 1] = vertIndex - 1;
-                triangles[triangleIndex + 2] = vertIndex;
-                triangleIndex += 3;
-            }
+            //if (i > 0)
+            //{
+            //    triangles[triangleIndex + 0] = 0;
+            //    triangles[triangleIndex + 1] = vertIndex - 1;
+            //    triangles[triangleIndex + 2] = vertIndex;
+            //    triangleIndex += 3;
+            //}
 
 
             vertIndex++;
@@ -266,14 +273,14 @@ public class EntityVisionMesh : MonoBehaviour
         return new Vector3(Mathf.Sin(angleRad), 0, Mathf.Cos(angleRad));
     }
 
-    Vector3 CalculateMeshCenter(Vector3[] vertices)
+    float CalculateAngle(Vector3 a, Vector3 b)
     {
-        Vector3 center = Vector3.zero;
-        foreach (var vertex in vertices)
-        {
-            center += vertex;
-        }
-        center /= vertices.Length;
-        return center;
+        float dotProduct = Vector3.Dot(a, b);
+        float magnitudeA = a.magnitude;
+        float magnitudeB = b.magnitude;
+        float cosTheta = dotProduct / (magnitudeA * magnitudeB);
+        float angleInRadians = Mathf.Acos(cosTheta);
+        float angleInDegrees = angleInRadians * Mathf.Rad2Deg;
+        return angleInDegrees;
     }
 }
