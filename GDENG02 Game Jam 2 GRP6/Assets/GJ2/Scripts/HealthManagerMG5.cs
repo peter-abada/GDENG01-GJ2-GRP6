@@ -35,6 +35,15 @@ public class HealthManagerMG5 : MonoBehaviour
     void UpdateUI()
     {
         int currentHealth = Mathf.Clamp(player.currentHealth, 0, hearts.Length);
+
+        if (player == null)
+        {
+            Debug.LogError("HealthManagerMG5: Player reference is null in UpdateUI!");
+            return;
+        }
+
+        
+        Debug.Log("Updating UI with health: " + currentHealth);
         for (int i = 0; i < hearts.Length; i++)
         {
             hearts[i].sprite = i < currentHealth ? fullHeart : emptyHeart;

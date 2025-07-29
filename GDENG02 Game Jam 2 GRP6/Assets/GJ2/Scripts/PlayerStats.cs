@@ -5,6 +5,8 @@ public class PlayerStats : MonoBehaviour
     public int maxHealth = 3;
     public int currentHealth;
 
+    //[SerializeField] private HealthManagerMG5 healthManager;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -22,7 +24,10 @@ public class PlayerStats : MonoBehaviour
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        // Notify UI or other systems
+        //if (healthManager != null)
+        //{
+        //    healthManager.UpdateUI();
+        //}
         EventBroadcaster.Instance.PostEvent(EventNames.GJ2_Events.ON_HEALTH_CHANGED); 
     }
 }
