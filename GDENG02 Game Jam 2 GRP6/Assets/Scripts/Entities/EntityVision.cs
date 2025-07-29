@@ -11,7 +11,7 @@ public class EntityVision : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
-    private bool isInViewCone, isInRange, isNotHidden;
+    private bool isInViewCone, isInRange, isHidden;
     [SerializeField] public float detectionRange;
     [SerializeField] public GameObject player;
     [SerializeField] private float viewAngle;
@@ -48,28 +48,28 @@ public class EntityVision : MonoBehaviour
 
 
         //SimpleMesh();
-        InitializeMesh();
+        //InitializeMesh();
 
         arcPointsSize = segments + 1;
         arcPoints = new Vector3[arcPointsSize];
-        //InitializeLineRenderer();
+        InitializeLineRenderer();
         
-        //CalculateArcPoints();
+        CalculateArcPoints();
     }
 
     // Update is called once per frame
     void Update()
     {
         isInRange = false;
-        isNotHidden = false;
+        isHidden = false;
         isInViewCone = false;
 
         CheckIfInRange();
-        CheckIfNotHidden();
+        CheckIfHidden();
         CheckIfInViewCone();
 
-        DrawVerticesPosition();
-        //DrawArcPointsTemp();
+        //DrawVerticesPosition();
+        DrawArcPointsTemp();
         DisplayOnScreen();
     }
 
@@ -80,12 +80,12 @@ public class EntityVision : MonoBehaviour
             isInRange = (true);
         }
     }
-    void CheckIfNotHidden()
+    void CheckIfHidden()
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, player.transform.position - transform.position, out hit, Mathf.Infinity))
         {
-            isNotHidden = (true);
+            isHidden = (true);
         }
     }
     void CheckIfInViewCone()
@@ -256,6 +256,26 @@ public class EntityVision : MonoBehaviour
             RangeText.text = "Not In Range";
             RangeText.color = Color.red;
         }
+        if (isInRange)
+        {
+            RangeText.text = "In Range";
+            RangeText.color = Color.green;
+        }
+        else
+        {
+            RangeText.text = "Not In Range";
+            RangeText.color = Color.red;
+        }
+        if (isInRange)
+        {
+            RangeText.text = "In Range";
+            RangeText.color = Color.green;
+        }
+        else
+        {
+            RangeText.text = "Not In Range";
+            RangeText.color = Color.red;
+        }
     }
 
     void InitializeLineRenderer()
@@ -269,33 +289,4 @@ public class EntityVision : MonoBehaviour
         lineRenderer.endColor = Color.red;
     }
 
-    void OldDrawViewCone()
-    {
-        Vector3 globalViewCone = transform.forward * detectionRange;
-        leftEdge = Quaternion.Euler(0, -viewAngle, 0) * globalViewCone;
-        rightEdge = Quaternion.Euler(0, viewAngle, 0) * globalViewCone;
-        Vector3 offsetPosition = transform.position + new Vector3(0, 0.2f, 0);
-
-        lineRenderer.SetPosition(0, offsetPosition);
-        lineRenderer.SetPosition(1, offsetPosition + leftEdge);
-        lineRenderer.SetPosition(2, offsetPosition + globalViewCone);
-        lineRenderer.SetPosition(3, offsetPosition + rightEdge);
-        lineRenderer.SetPosition(4, offsetPosition);
-    }
-    void OldDrawArcPoints()
-    {
-        float angle = viewAngle * 2f / segments;
-        Vector3 offsetPosition = transform.position + new Vector3(0, 0.2f, 0);
-
-        lineRenderer.SetPosition(0, offsetPosition);
-
-        for (int i = 1; i < segments; i++)
-        {
-            float newAngle = -viewAngle + angle * i;
-
-            Vector3 directionOfPoint = Quaternion.Euler(0, newAngle, 0) * transform.forward * detectionRange;
-            lineRenderer.SetPosition(i, offsetPosition + directionOfPoint);
-        }
-        lineRenderer.SetPosition(segments, offsetPosition);
-    }
 }
