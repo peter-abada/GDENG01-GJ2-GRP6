@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.XR.Haptics;
 using UnityEngine.Rendering;
 using UnityEngine.U2D;
+using UnityEngine.UIElements;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
 using static UnityEngine.UI.Image;
 
@@ -26,6 +27,7 @@ public class EntityVision : MonoBehaviour
     Vector2[] uv;
     int[] triangles;
 
+    Vector3 heightOffset;
     Vector3 origin;
     float fov;
     int rayCount;
@@ -34,8 +36,9 @@ public class EntityVision : MonoBehaviour
 
     //Debugging vars
     public TMP_Text RangeText;
-    [SerializeField] public Vector3 leftEdge;
-    [SerializeField] public Vector3 rightEdge;
+    public TMP_Text IsHiddenText;
+    public TMP_Text ViewConeText;
+
     void Start()
     {
         if (!player)
@@ -43,6 +46,7 @@ public class EntityVision : MonoBehaviour
             player = GameObject.FindGameObjectWithTag("Player");
         }
 
+        heightOffset = new Vector3 (0f, 0.2f, 0f);
         detectionRange = 4.0f;
         viewAngle = 45;
 
@@ -93,22 +97,13 @@ public class EntityVision : MonoBehaviour
         Vector3 side1 = player.transform.position - transform.position;
         Vector3 side2 = transform.forward;
         float angle = Vector3.SignedAngle(side1, side2, Vector3.up);
-        if (angle <= viewAngle && angle >= -viewAngle)
+        if (angle <= viewAngle * 0.5f && angle >= -viewAngle * 0.5f)
         {
             isInViewCone = true;
         }
     }
 
-    Vector2 Get2DVectorFromAngle(float angle)
-    {
-        float angleRad = angle * (Mathf.PI / 180f);
-        return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
-    }
-    Vector3 GetFlatVectorFromAngle(float angle)
-    {
-        float angleRad = angle * (Mathf.PI / 180f);
-        return new Vector3(Mathf.Cos(angleRad), 0, Mathf.Sin(angleRad));
-    }
+    
     void SimpleMesh()
     {
         mesh = new Mesh();
@@ -141,9 +136,9 @@ public class EntityVision : MonoBehaviour
     void ResetMeshData()
     {
         origin = Vector3.zero;
-        fov = 90f;
+        fov = viewAngle;
         rayCount = 30;
-        angle = 0;
+        angle = viewAngle * 0.5f;
         angleStep = fov / rayCount;
 
         vertices = new Vector3[rayCount + 1 + 1]; // 1 for origin, 1 for ray 0
@@ -155,31 +150,28 @@ public class EntityVision : MonoBehaviour
     {
         ResetMeshData();
 
-        Vector3 transformOffset = origin + new Vector3(0, 1f, 0);
+        Vector3 transformOffset = origin + heightOffset;
         vertices[0] = transformOffset;
         int vertIndex = 1;
         int triangleIndex = 0;
-        int layerMask = ~(1 << LayerMask.NameToLayer("Enemy"));
+        int layerMask = ~(1 << LayerMask.NameToLayer("Enemy")) & ~(1 << LayerMask.NameToLayer("Player"));
 
         for (int i = 0; i <= rayCount; i++)
         {
             Vector3 vertex;
 
-            Vector2 vectorFromAngle = Get2DVectorFromAngle(angle);
-            RaycastHit2D raycastHit2D = Physics2D.Raycast(transformOffset + transform.position, GetFlatVectorFromAngle(angle), detectionRange);
+            Vector3 aimDirection = GetFlatVectorFromAngle(angle);
+            RaycastHit hit;
 
 
-            Debug.DrawRay(transformOffset + transform.position, GetFlatVectorFromAngle(angle) * detectionRange, Color.red);
-            if (raycastHit2D.collider == null)
+            Debug.DrawRay(transformOffset + transform.position,aimDirection * detectionRange, Color.red);
+            if (Physics.Raycast(origin, aimDirection, out hit, detectionRange, layerMask))
             {
-                vertex = transformOffset + new Vector3(vectorFromAngle.x, 0, vectorFromAngle.y) * detectionRange;
-                Debug.Log("NO HIT" );
+                vertex = hit.point;
             }
             else
-            { 
-                vertex = raycastHit2D.point;
-                Debug.Log("Hit: " + vertex);
-                
+            {
+                vertex = transformOffset * detectionRange;
             }
 
 
@@ -256,26 +248,37 @@ public class EntityVision : MonoBehaviour
             RangeText.text = "Not In Range";
             RangeText.color = Color.red;
         }
-        if (isInRange)
+        if (IsHiddenText)
         {
-            RangeText.text = "In Range";
-            RangeText.color = Color.green;
+            IsHiddenText.text = "Is Hidden";
+            IsHiddenText.color = Color.red;
         }
         else
         {
-            RangeText.text = "Not In Range";
-            RangeText.color = Color.red;
+            IsHiddenText.text = "Is not Hidden";
+            IsHiddenText.color = Color.green;
         }
-        if (isInRange)
+        if (ViewConeText)
         {
-            RangeText.text = "In Range";
-            RangeText.color = Color.green;
+            ViewConeText.text = "In View Cone";
+            ViewConeText.color = Color.green;
         }
         else
         {
-            RangeText.text = "Not In Range";
-            RangeText.color = Color.red;
+            ViewConeText.text = "Not In View Cone";
+            ViewConeText.color = Color.red;
         }
+    }
+
+    Vector2 Get2DVectorFromAngle(float angle)
+    {
+        float angleRad = angle * (Mathf.PI / 180f);
+        return new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+    }
+    Vector3 GetFlatVectorFromAngle(float angle)
+    {
+        float angleRad = angle * (Mathf.PI / 180f);
+        return new Vector3(Mathf.Cos(angleRad), 0, Mathf.Sin(angleRad));
     }
 
     void InitializeLineRenderer()
