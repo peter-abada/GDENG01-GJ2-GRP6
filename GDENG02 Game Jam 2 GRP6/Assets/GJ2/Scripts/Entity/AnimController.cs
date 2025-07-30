@@ -17,7 +17,7 @@ public class AnimController : MonoBehaviour
 
         animator = GetComponent<Animator>();
         EntityVisionMesh env = Player.GetComponent<EntityVisionMesh>();
-        Player = this.GetComponentInParent<EntityController>().Player;
+        //Player = this.GetComponentInParent<EntityController>().Player;
     }
 
     public void Idle()

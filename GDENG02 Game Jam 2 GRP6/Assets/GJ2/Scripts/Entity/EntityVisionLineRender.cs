@@ -9,7 +9,7 @@ public class EntityVisionLineRender : MonoBehaviour
     [SerializeField] public float detectionRange;
     [SerializeField] private float viewAngle;
 
-    [SerializeField] Vector3[] arcPoints;
+    Vector3[] arcPoints;
     private LineRenderer lineRenderer;
     private int segments = 10;
     private int arcPointsSize;
@@ -23,12 +23,12 @@ public class EntityVisionLineRender : MonoBehaviour
 
     void Start()
     {
-        Player = this.GetComponentInParent<EntityController>().Player;
+        //Player = this.GetComponentInParent<EntityController>().Player;
         if (!Player)
         {
             Debug.LogError($"{name} has no Player gameObject");
         }
-
+        isHidden = true;
         heightOffset = new Vector3(0f, 1.5f, 0f);
         detectionRange = 4.0f;
         viewAngle = 45;
@@ -44,7 +44,7 @@ public class EntityVisionLineRender : MonoBehaviour
     {
         CalculateArcPoints();
         isInRange = false;
-        isHidden = true;
+        
         isInViewCone = false;
 
         CheckIfInRange();
@@ -75,13 +75,12 @@ public class EntityVisionLineRender : MonoBehaviour
             {
                 isHidden = false;
             }
-            
+
         }
         else
         {
             isHidden = true;
         }
-
     }
     void CheckIfInViewCone()
     {
@@ -176,7 +175,9 @@ public class EntityVisionLineRender : MonoBehaviour
         lineRenderer.positionCount = arcPointsSize;
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
-        //lineRenderer.SetColors(Color.grey);
+        lineRenderer.material = new Material(Shader.Find("Unlit/Color"));
+        lineRenderer.startColor = Color.grey;
+        lineRenderer.endColor = Color.grey;
     }
 
     public bool GetIsInRange()
