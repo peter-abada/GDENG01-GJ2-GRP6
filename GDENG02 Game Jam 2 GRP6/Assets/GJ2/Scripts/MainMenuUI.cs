@@ -9,6 +9,9 @@ public class MainMenuUI : MonoBehaviour
     //[SerializeField] private Button creditsButton;
     //[SerializeField] private Button exitButton;
 
+    [SerializeField] private GameObject Controls;
+    [SerializeField] private GameObject Credits;
+
     void Start()
     {
         //if (playButton != null)
@@ -28,10 +31,25 @@ public class MainMenuUI : MonoBehaviour
         EventBroadcaster.Instance.PostEvent(EventNames.MainMenuEvents.ON_PLAY);
     }
 
+    public void OnControlsClicked()
+    {
+        Controls.SetActive(true);
+    }
+
+    public void OnControlsCloseClicked()
+    {
+        Controls.SetActive(false);
+    }
+
     public void OnCreditsClicked()
     {
-        SceneManager.LoadScene("Credits");
+        Credits.SetActive(true);
         EventBroadcaster.Instance.PostEvent(EventNames.MainMenuEvents.ON_CREDITS);
+    }
+
+    public void OnCreditsCloseClicked()
+    {
+        Credits.SetActive(false);
     }
 
     public void OnExitClicked()
