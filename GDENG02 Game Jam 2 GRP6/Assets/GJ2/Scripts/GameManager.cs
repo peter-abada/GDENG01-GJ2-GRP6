@@ -40,17 +40,17 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f; // Optional: pause gameplay
         ShowCursor(true);
 
-        SceneManager.LoadScene("EndCutscene");
-        //victoryPanel.SetActive(true);
-        //if (victoryVideo != null)
-        //{
-        //    victoryVideo.loopPointReached += OnVictoryVideoEnd;
-        //    victoryVideo.Play();
-        //}
-        //else
-        //{
-        //    ReturnToMainMenu();
-        //}
+        //SceneManager.LoadScene("EndCutscene");
+        victoryPanel.SetActive(true);
+        if (victoryVideo != null)
+        {
+            victoryVideo.loopPointReached += OnVictoryVideoEnd;
+            victoryVideo.Play();
+        }
+        else
+        {
+            ReturnToMainMenu();
+        }
     }
 
     void OnVictoryVideoEnd(VideoPlayer vp)
