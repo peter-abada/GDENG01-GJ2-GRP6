@@ -14,9 +14,11 @@ public class EntityVisionLineRender : MonoBehaviour
     private int segments = 10;
     private int arcPointsSize;
     Vector3 heightOffset;
-
-    public float attackCooldown;
     float lookOffset = -90f;
+
+    public Material undetected;
+    public Material caution;
+    public Material detected;
     //Debugging vars
     public TMP_Text RangeText;
     public TMP_Text IsHiddenText;
@@ -29,7 +31,7 @@ public class EntityVisionLineRender : MonoBehaviour
             Player = GameObject.FindGameObjectWithTag("Player");
         }
 
-        heightOffset = new Vector3(0f, 0.5f, 0f);
+        heightOffset = new Vector3(0f, 1.0f, 0f);
         detectionRange = 4.0f;
         viewAngle = 45;
         attackCooldown = 3.5f;
@@ -75,8 +77,8 @@ public class EntityVisionLineRender : MonoBehaviour
     void CheckIfHidden()
     {
         RaycastHit hit;
-        Debug.DrawRay(transform.position, (Player.transform.position - transform.position), Color.blue);
-        if (Physics.Raycast(transform.position + heightOffset, (Player.transform.position - transform.position) + heightOffset, out hit, detectionRange))
+        Debug.DrawRay(transform.position + transform.up * 1f , (Player.transform.position - transform.position - transform.up * 1f), Color.blue);
+        if (Physics.Raycast(transform.position + transform.up * 1f, (Player.transform.position - transform.position - transform.up * 1f), out hit, detectionRange))
         {
             if (hit.collider.gameObject == Player)
             {
@@ -188,25 +190,22 @@ public class EntityVisionLineRender : MonoBehaviour
             lineRenderer.endColor = Color.grey;
         }
 
-    void ViewConeColor()
+    public bool GetIsInRange()
     {
-        if (!isHidden && isInViewCone)
-        {
-            lineRenderer.startColor = Color.red;
-            lineRenderer.endColor = Color.red;
-            lineRenderer.material.SetColor("_Color", Color.red * 2f);
-        }
-        else
-        {
-            lineRenderer.startColor = Color.grey;
-            lineRenderer.endColor = Color.grey;
-        }
+        return isInRange;
+    }
+    public bool GetIsInViewCone()
+    {
+        return isInViewCone;
+    }
+    public bool GetIsHidden()
+    {
+        return isHidden;
     }
 
-    //IEnumerable AnimateEmmision()
-    //{
-    //    float time = 0f;
-    //    while(time < duration)
-    //}
+    void SetMaterial(Material material)
+    {
+        lineRenderer.material = material;
+    }
 }
 

@@ -4,12 +4,14 @@ public class EntityController : MonoBehaviour
 {
     public GameObject model;
     public AnimController animController;
-    public EntityVisionMesh entityVision;
+    public EntityVisionLineRender entityVision;
 
     private bool isInViewCone, isInRange, isHidden;
     void Start()
     {
-        
+        animController = model.GetComponent<AnimController>();
+        entityVision = model.GetComponent<EntityVisionLineRender>();
+
         if (animController == null)
         {
             Debug.Log(transform.name + "animController missing");
@@ -18,9 +20,7 @@ public class EntityController : MonoBehaviour
         {
             Debug.Log(transform.name + "entityVision missing");
         }
-
-        animController = model.GetComponent<AnimController>();
-        entityVision = model.GetComponent<EntityVisionMesh>();
+        
     }
 
     // Update is called once per frame
