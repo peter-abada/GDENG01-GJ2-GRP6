@@ -1,5 +1,8 @@
 using JetBrains.Annotations;
 using TMPro;
+using Unity.Hierarchy;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem.XR.Haptics;
 using UnityEngine.Rendering;
@@ -8,19 +11,15 @@ using UnityEngine.UIElements;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
 using static UnityEngine.UI.Image;
 
-public class EntityVision : MonoBehaviour
+public class EntityVisionMesh : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     private bool isInViewCone, isInRange, isHidden;
-    [SerializeField] public float detectionRange;
-    [SerializeField] public GameObject player;
-    [SerializeField] private float viewAngle;
+    [SerializeField] public GameObject Entity;
+    [SerializeField] public GameObject Player;
     
-    [SerializeField] Vector3[] arcPoints;
-    private LineRenderer lineRenderer;
-    private int segments = 5;
-    private int arcPointsSize;
+    [SerializeField] public float detectionRange;
+    [SerializeField] private float viewAngle;
 
     Mesh mesh;
     Vector3[] vertices;
@@ -34,34 +33,35 @@ public class EntityVision : MonoBehaviour
     float angle;
     float angleStep;
 
+    public Material UndetectedMaterial;
+    public Material DetectedMaterial;
+
     //Debugging vars
-    public TMP_Text RangeText;
-    public TMP_Text IsHiddenText;
-    public TMP_Text ViewConeText;
+    //public TMP_Text RangeText;
+    //public TMP_Text IsHiddenText;
+    //public TMP_Text InViewConeText;
+
+    public Quaternion EnemyRotation;
+    public Quaternion PlayerRotation;
 
     void Start()
     {
-        if (!player)
+        if (!Player)
         {
-            player = GameObject.FindGameObjectWithTag("Player");
+            Player = GameObject.FindGameObjectWithTag("Player");
         }
 
+        
         heightOffset = new Vector3 (0f, 0.2f, 0f);
         detectionRange = 4.0f;
-        viewAngle = 45;
+        viewAngle = 90f;
+        rayCount = 25;
 
 
-        //SimpleMesh();
-        //InitializeMesh();
+        InitializeMesh();
 
-        arcPointsSize = segments + 1;
-        arcPoints = new Vector3[arcPointsSize];
-        InitializeLineRenderer();
-        
-        CalculateArcPoints();
     }
 
-    // Update is called once per frame
     void Update()
     {
         isInRange = false;
@@ -72,14 +72,15 @@ public class EntityVision : MonoBehaviour
         CheckIfHidden();
         CheckIfInViewCone();
 
-        //DrawVerticesPosition();
-        DrawArcPointsTemp();
-        DisplayOnScreen();
+        //TEST_SimpleMesh();
+        DrawVerticesPosition();
+
+        //DisplayOnScreen();
     }
 
     void CheckIfInRange()
     {
-        if (Vector3.Distance(transform.position, player.transform.position) <= detectionRange)
+        if (Vector3.Distance(transform.position, Player.transform.position) <= detectionRange)
         {
             isInRange = (true);
         }
@@ -87,14 +88,14 @@ public class EntityVision : MonoBehaviour
     void CheckIfHidden()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, player.transform.position - transform.position, out hit, Mathf.Infinity))
+        if (Physics.Raycast(transform.position, Player.transform.position - transform.position, out hit, Mathf.Infinity))
         {
             isHidden = (true);
         }
     }
     void CheckIfInViewCone()
     {
-        Vector3 side1 = player.transform.position - transform.position;
+        Vector3 side1 = Player.transform.position - transform.position;
         Vector3 side2 = transform.forward;
         float angle = Vector3.SignedAngle(side1, side2, Vector3.up);
         if (angle <= viewAngle * 0.5f && angle >= -viewAngle * 0.5f)
@@ -104,7 +105,11 @@ public class EntityVision : MonoBehaviour
     }
 
     
-    void SimpleMesh()
+    float GetNormal(Vector3 vec)
+    {
+        return Mathf.Sqrt(vec.x * vec.x + vec.y * vec.y + vec.z + vec.z);
+    }
+    void TEST_SimpleMesh()
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
@@ -113,11 +118,18 @@ public class EntityVision : MonoBehaviour
         uv = new Vector2[3];
         triangles = new int[3];
 
-        float offsetDistance = 0.2f;
-        Vector3 offsetPosition = origin + new Vector3(0, 0.5f, 0);
-        vertices[0] = offsetPosition;
-        vertices[1] = new Vector3(5, 0, 0) + offsetPosition;
-        vertices[2] = new Vector3(0, 0, -5) + offsetPosition;
+
+        Vector3 offsetPosition = origin + heightOffset;// + Entity.transform.localPosition;
+        Quaternion rotation = transform.rotation;
+        Vector3 forward = rotation * Vector3.forward;
+
+        Vector3 edgeDirection = GetNewFlatVectorFromAngle(viewAngle);
+        edgeDirection = rotation * edgeDirection;
+        Vector3 edgeOfViewCone = (forward * detectionRange) + (edgeDirection * detectionRange);
+        Vector3 evc = edgeOfViewCone;
+        vertices[0] = rotation * offsetPosition;
+        vertices[1] = rotation * (new Vector3(-evc.x, evc.y, evc.z) + offsetPosition);
+        vertices[2] = rotation * ( new Vector3(evc.x, evc.y, evc.z) + offsetPosition);
 
         triangles[0] = 0;
         triangles[1] = 1;
@@ -126,6 +138,7 @@ public class EntityVision : MonoBehaviour
         mesh.vertices = vertices;
         mesh.uv = uv;
         mesh.triangles = triangles;
+        
     }
     void InitializeMesh()
     {
@@ -137,8 +150,7 @@ public class EntityVision : MonoBehaviour
     {
         origin = Vector3.zero;
         fov = viewAngle;
-        rayCount = 30;
-        angle = viewAngle * 0.5f;
+        angle = viewAngle / 2f;
         angleStep = fov / rayCount;
 
         vertices = new Vector3[rayCount + 1 + 1]; // 1 for origin, 1 for ray 0
@@ -151,6 +163,18 @@ public class EntityVision : MonoBehaviour
         ResetMeshData();
 
         Vector3 transformOffset = origin + heightOffset;
+        Vector3 targetDirection = Player.transform.forward;
+        Vector3 targetPosition = transform.position + targetDirection;
+        EnemyRotation = transform.rotation;
+        PlayerRotation = Player.transform.rotation;
+
+        Debug.DrawRay(transform.position, transform.forward, Color.blue);
+        //Debug.DrawRay(transform.position, Player.transform.forward, Color.green);//player
+        //transform.LookAt(Player.transform.forward);
+
+        Vector3 rotation = transform.forward;
+
+
         vertices[0] = transformOffset;
         int vertIndex = 1;
         int triangleIndex = 0;
@@ -164,25 +188,25 @@ public class EntityVision : MonoBehaviour
             RaycastHit hit;
 
 
-            Debug.DrawRay(transformOffset + transform.position,aimDirection * detectionRange, Color.red);
+            //Debug.DrawRay(transformOffset + transform.position, aimDirection * detectionRange, Color.red);
             if (Physics.Raycast(origin, aimDirection, out hit, detectionRange, layerMask))
             {
                 vertex = hit.point;
             }
             else
             {
-                vertex = transformOffset * detectionRange;
+                vertex = transformOffset + aimDirection * detectionRange;
             }
 
 
                 vertices[vertIndex] = vertex;
-            if (i > 0)
-            {
-                triangles[triangleIndex + 0] = 0;
-                triangles[triangleIndex + 1] = vertIndex - 1;
-                triangles[triangleIndex + 2] = vertIndex;
-                triangleIndex += 3;
-            }
+            //if (i > 0)
+            //{
+            //    triangles[triangleIndex + 0] = 0;
+            //    triangles[triangleIndex + 1] = vertIndex - 1;
+            //    triangles[triangleIndex + 2] = vertIndex;
+            //    triangleIndex += 3;
+            //}
 
 
             vertIndex++;
@@ -194,81 +218,39 @@ public class EntityVision : MonoBehaviour
         mesh.triangles = triangles;
     }
 
-    void CalculateArcPoints()
-    {
-        float angle = viewAngle * 2f / segments;
-        Vector3 offsetPosition = transform.position + new Vector3(0, 0.2f, 0);
-
-        arcPoints[0] = offsetPosition;
-
-        for (int i = 1; i < segments; i++)
-        {
-            float newAngle = -viewAngle + angle * i;
-
-            Vector3 directionOfPoint = Quaternion.Euler(0, newAngle, 0) * transform.forward * detectionRange;
-            arcPoints[i] = offsetPosition + directionOfPoint;
-        }
-
-        arcPoints[segments] = offsetPosition;
-    }
-    void DrawArcPointsTemp()
-    {
-        float angle = viewAngle * 2f / segments;
-        Vector3 offsetPosition = transform.position + new Vector3(0, 0.2f, 0);
-
-        lineRenderer.SetPosition(0, offsetPosition);
-
-        for (int i = 1; i < segments; i++)
-        {
-            float newAngle = -viewAngle + angle * i;
-
-            Vector3 directionOfPoint = Quaternion.Euler(0, newAngle, 0) * transform.forward * detectionRange;
-            lineRenderer.SetPosition(i, offsetPosition + directionOfPoint);
-        }
-
-        lineRenderer.SetPosition(segments, offsetPosition);
-    }
-    void DrawArcPoints()
-    {
-        for (int i = 0; i < segments; i++)
-        {
-            lineRenderer.SetPosition(i, arcPoints[i]);
-        }
-    }
-
-    void DisplayOnScreen()
-    {
-        if (isInRange)
-        {
-            RangeText.text = "In Range";
-            RangeText.color = Color.green;
-        }
-        else
-        {
-            RangeText.text = "Not In Range";
-            RangeText.color = Color.red;
-        }
-        if (IsHiddenText)
-        {
-            IsHiddenText.text = "Is Hidden";
-            IsHiddenText.color = Color.red;
-        }
-        else
-        {
-            IsHiddenText.text = "Is not Hidden";
-            IsHiddenText.color = Color.green;
-        }
-        if (ViewConeText)
-        {
-            ViewConeText.text = "In View Cone";
-            ViewConeText.color = Color.green;
-        }
-        else
-        {
-            ViewConeText.text = "Not In View Cone";
-            ViewConeText.color = Color.red;
-        }
-    }
+    //void DisplayOnScreen()
+    //{
+    //    if (isInRange)
+    //    {
+    //        RangeText.text = "In Range";
+    //        RangeText.color = Color.green;
+    //    }
+    //    else
+    //    {
+    //        RangeText.text = "Not In Range";
+    //        RangeText.color = Color.red;
+    //    }
+    //    if (IsHiddenText)
+    //    {
+    //        IsHiddenText.text = "Is Hidden";
+    //        IsHiddenText.color = Color.red;
+    //    }
+    //    else
+    //    {
+    //        IsHiddenText.text = "Is not Hidden";
+    //        IsHiddenText.color = Color.green;
+    //    }
+    //    if (InViewConeText)
+    //    {
+    //        InViewConeText.text = "In View Cone";
+    //        InViewConeText.color = Color.green;
+    //    }
+    //    else
+    //    {
+    //        InViewConeText.text = "Not In View Cone";
+    //        InViewConeText.color = Color.red;
+    //    }
+    //}
 
     Vector2 Get2DVectorFromAngle(float angle)
     {
@@ -280,16 +262,33 @@ public class EntityVision : MonoBehaviour
         float angleRad = angle * (Mathf.PI / 180f);
         return new Vector3(Mathf.Cos(angleRad), 0, Mathf.Sin(angleRad));
     }
-
-    void InitializeLineRenderer()
+    Vector3 GetNewFlatVectorFromAngle(float angle)
     {
-        lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.positionCount = arcPointsSize;
-        lineRenderer.startWidth = 0.1f;
-        lineRenderer.endWidth = 0.1f;
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.startColor = Color.green;
-        lineRenderer.endColor = Color.red;
+        float angleRad = angle * (Mathf.PI / 180f);
+        return new Vector3(Mathf.Sin(angleRad), 0, Mathf.Cos(angleRad));
     }
 
+    float CalculateAngle(Vector3 a, Vector3 b)
+    {
+        float dotProduct = Vector3.Dot(a, b);
+        float magnitudeA = a.magnitude;
+        float magnitudeB = b.magnitude;
+        float cosTheta = dotProduct / (magnitudeA * magnitudeB);
+        float angleInRadians = Mathf.Acos(cosTheta);
+        float angleInDegrees = angleInRadians * Mathf.Rad2Deg;
+        return angleInDegrees;
+    }
+
+    public bool GetIsInRange()
+    {
+        return isInRange;
+    }
+    public bool GetIsInViewCone()
+    {
+        return isInViewCone;
+    }
+    public bool GetIsHidden()
+    {
+        return isHidden;
+    }
 }
