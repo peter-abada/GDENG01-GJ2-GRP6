@@ -37,5 +37,10 @@ public class PlayerStats : MonoBehaviour
         {
             sfxAudioSource.PlayOneShot(hitSound);
         }
+
+        if (currentHealth <= 0)
+        {
+            GameManager.Instance.TriggerGameOver();
+        }
     }
 }
