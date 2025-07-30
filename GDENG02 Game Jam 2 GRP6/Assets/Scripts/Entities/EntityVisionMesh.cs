@@ -37,9 +37,9 @@ public class EntityVisionMesh : MonoBehaviour
     public Material DetectedMaterial;
 
     //Debugging vars
-    public TMP_Text RangeText;
-    public TMP_Text IsHiddenText;
-    public TMP_Text InViewConeText;
+    //public TMP_Text RangeText;
+    //public TMP_Text IsHiddenText;
+    //public TMP_Text InViewConeText;
 
     public Quaternion EnemyRotation;
     public Quaternion PlayerRotation;
@@ -75,7 +75,7 @@ public class EntityVisionMesh : MonoBehaviour
         //TEST_SimpleMesh();
         DrawVerticesPosition();
 
-        DisplayOnScreen();
+        //DisplayOnScreen();
     }
 
     void CheckIfInRange()
@@ -218,44 +218,39 @@ public class EntityVisionMesh : MonoBehaviour
         mesh.triangles = triangles;
     }
 
-    void DisplayOnScreen()
-    {
-        if (isInRange)
-        {
-            RangeText.text = "In Range";
-            RangeText.color = Color.green;
-        }
-        else
-        {
-            RangeText.text = "Not In Range";
-            RangeText.color = Color.red;
-        }
-        if (IsHiddenText)
-        {
-            IsHiddenText.text = "Is Hidden";
-            IsHiddenText.color = Color.red;
-        }
-        else
-        {
-            IsHiddenText.text = "Is not Hidden";
-            IsHiddenText.color = Color.green;
-        }
-        if (InViewConeText)
-        {
-            InViewConeText.text = "In View Cone";
-            InViewConeText.color = Color.green;
-        }
-        else
-        {
-            InViewConeText.text = "Not In View Cone";
-            InViewConeText.color = Color.red;
-        }
-
-
-        
-
-
-    }
+    //void DisplayOnScreen()
+    //{
+    //    if (isInRange)
+    //    {
+    //        RangeText.text = "In Range";
+    //        RangeText.color = Color.green;
+    //    }
+    //    else
+    //    {
+    //        RangeText.text = "Not In Range";
+    //        RangeText.color = Color.red;
+    //    }
+    //    if (IsHiddenText)
+    //    {
+    //        IsHiddenText.text = "Is Hidden";
+    //        IsHiddenText.color = Color.red;
+    //    }
+    //    else
+    //    {
+    //        IsHiddenText.text = "Is not Hidden";
+    //        IsHiddenText.color = Color.green;
+    //    }
+    //    if (InViewConeText)
+    //    {
+    //        InViewConeText.text = "In View Cone";
+    //        InViewConeText.color = Color.green;
+    //    }
+    //    else
+    //    {
+    //        InViewConeText.text = "Not In View Cone";
+    //        InViewConeText.color = Color.red;
+    //    }
+    //}
 
     Vector2 Get2DVectorFromAngle(float angle)
     {
