@@ -14,6 +14,10 @@ public class RockShooter : MonoBehaviour
 
     private float fireTimer;
 
+    [SerializeField] private AudioClip rockShotClip;
+    [SerializeField] private float minDistance = 1f;
+    [SerializeField] private float maxDistance = 30f;
+
     void Start()
     {
         fireTimer = fireInterval;
@@ -48,6 +52,19 @@ public class RockShooter : MonoBehaviour
         if (rb != null)
         {
             rb.AddForce(firePoint.forward * fireForce, ForceMode.Impulse);
+        }
+
+        if (rockShotClip != null)
+        {
+            AudioSource sfx = rock.AddComponent<AudioSource>();
+            sfx.clip = rockShotClip;
+            sfx.spatialBlend = 1f; // fully 3D
+            sfx.minDistance = minDistance;
+            sfx.maxDistance = maxDistance;
+            sfx.rolloffMode = AudioRolloffMode.Linear; // or Logarithmic
+            sfx.Play();
+
+            Destroy(sfx, rockShotClip.length + 0.1f); // cleanup after playing
         }
     }
 }

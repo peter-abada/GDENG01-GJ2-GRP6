@@ -684,3 +684,6 @@ MonoBehaviour:
   fireInterval: 1.5
   useTrigger: 0
   targetTag: Player
+  rockShotClip: {fileID: 8300000, guid: 7bef0064f8567430cac22499c6b93d4f, type: 3}
+  minDistance: 1
+  maxDistance: 10

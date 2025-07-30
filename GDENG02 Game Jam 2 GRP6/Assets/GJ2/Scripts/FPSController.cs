@@ -223,8 +223,8 @@ public class FPSController : MonoBehaviour
             fpsCamera.enabled = false;
             topDownCamera.enabled = true;
 
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            //Cursor.lockState = CursorLockMode.None;
+            //Cursor.visible = true;
             //isTopDown = false;
         }
         else
