@@ -27617,6 +27617,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1576488453971394810, guid: a778b631c6253a04899cb31bad047c81, type: 3}
   m_PrefabInstance: {fileID: 1345224224}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1350409255 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1882713775139818853, guid: c061eede20bca73409ece80e56031930, type: 3}
+  m_PrefabInstance: {fileID: 1674585146}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1353200540
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27749,6 +27754,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1512611149}
     m_Modifications:
+    - target: {fileID: 2004594597813035768, guid: 979d585d8c8b14849afd4670fee613cb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3068108418221232810, guid: 979d585d8c8b14849afd4670fee613cb, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -27811,11 +27820,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3068108418221232810, guid: 979d585d8c8b14849afd4670fee613cb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -955.3214
+      value: -0.000022888
       objectReference: {fileID: 0}
     - target: {fileID: 3068108418221232810, guid: 979d585d8c8b14849afd4670fee613cb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -462.15347
+      value: 0.000015259
       objectReference: {fileID: 0}
     - target: {fileID: 3068108418221232810, guid: 979d585d8c8b14849afd4670fee613cb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -30902,8 +30911,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 377d898e1f2d369459a560a989617bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerObject: {fileID: 1788722982}
-  hearts: []
+  playerObject: {fileID: 1350409255}
+  hearts:
+  - {fileID: 1923359733}
+  - {fileID: 742172508}
+  - {fileID: 1801697277}
   fullHeart: {fileID: -869265083, guid: 8d6ac85a2c942a44cbdaa152083f9323, type: 3}
   emptyHeart: {fileID: -1735825606, guid: 8d6ac85a2c942a44cbdaa152083f9323, type: 3}
 --- !u!4 &1522149532 stripped
