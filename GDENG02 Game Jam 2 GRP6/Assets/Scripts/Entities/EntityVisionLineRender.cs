@@ -16,6 +16,7 @@ public class EntityVisionLineRender : MonoBehaviour
     Vector3 heightOffset;
 
     public float attackCooldown;
+    float lookOffset = -90f;
     //Debugging vars
     public TMP_Text RangeText;
     public TMP_Text IsHiddenText;
@@ -40,7 +41,7 @@ public class EntityVisionLineRender : MonoBehaviour
         arcPoints = new Vector3[arcPointsSize];
         InitializeLineRenderer();
 
-        CalculateArcPoints();
+        //CalculateArcPoints();
     }
 
     void Update()
@@ -93,7 +94,7 @@ public class EntityVisionLineRender : MonoBehaviour
     {
         Vector3 side1 = Player.transform.position - transform.position;
         Vector3 side2 = transform.forward;
-        float angle = Vector3.SignedAngle(side1, side2, Vector3.up);
+        float angle = Vector3.SignedAngle(side1, side2, Vector3.up) + lookOffset;
         if (angle <= viewAngle && angle >= -viewAngle)
         {
             isInViewCone = true;
@@ -103,7 +104,7 @@ public class EntityVisionLineRender : MonoBehaviour
 
     void CalculateArcPoints()
     {
-        float angle = viewAngle * 2f / segments;
+        float angle = viewAngle * 2f / segments - 90;
         Vector3 offsetPosition = transform.position + new Vector3(0, 0.2f, 0);
 
         arcPoints[0] = offsetPosition;
@@ -111,7 +112,6 @@ public class EntityVisionLineRender : MonoBehaviour
         for (int i = 1; i < segments; i++)
         {
             float newAngle = -viewAngle + angle * i;
-
             Vector3 directionOfPoint = Quaternion.Euler(0, newAngle, 0) * transform.forward * detectionRange;
             arcPoints[i] = offsetPosition + directionOfPoint;
         }
@@ -129,7 +129,7 @@ public class EntityVisionLineRender : MonoBehaviour
         {
             float newAngle = -viewAngle + angle * i;
 
-            Vector3 directionOfPoint = Quaternion.Euler(0, newAngle, 0) * transform.forward * detectionRange;
+            Vector3 directionOfPoint = Quaternion.Euler(0, newAngle + lookOffset, 0) * transform.forward * detectionRange;
             lineRenderer.SetPosition(i, offsetPosition + directionOfPoint);
         }
 
@@ -203,10 +203,10 @@ public class EntityVisionLineRender : MonoBehaviour
         }
     }
 
-    IEnumerable AnimateEmmision()
-    {
-        float time = 0f;
-        while(time < duration)
-    }
+    //IEnumerable AnimateEmmision()
+    //{
+    //    float time = 0f;
+    //    while(time < duration)
+    //}
 }
 

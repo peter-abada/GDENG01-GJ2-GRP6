@@ -934,7 +934,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &326603205
 Transform:
   m_ObjectHideFlags: 0
@@ -2360,8 +2360,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 812586241}
+  - component: {fileID: 812586242}
   m_Layer: 0
-  m_Name: EnemyLineRender
+  m_Name: Archer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2376,7 +2377,7 @@ Transform:
   m_GameObject: {fileID: 812586240}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.88261986, y: 0, z: 0.47386003}
+  m_LocalPosition: {x: -0.3173802, y: 0, z: 0.47386003}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2384,6 +2385,21 @@ Transform:
   - {fileID: 1549352703}
   m_Father: {fileID: 167428316}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &812586242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 812586240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b5b8dff9f7131342be6fcf0260c8a79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  model: {fileID: 0}
+  animController: {fileID: 0}
+  entityVision: {fileID: 0}
 --- !u!1 &814440152
 GameObject:
   m_ObjectHideFlags: 0
@@ -3616,8 +3632,9 @@ GameObject:
   - component: {fileID: 1549352703}
   - component: {fileID: 1549352705}
   - component: {fileID: 1549352704}
+  - component: {fileID: 1549352706}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3661,6 +3678,7 @@ MonoBehaviour:
   detectionRange: 0
   viewAngle: 0
   arcPoints: []
+  attackCooldown: 0
   RangeText: {fileID: 80980083}
   IsHiddenText: {fileID: 12597963}
   InViewConeText: {fileID: 708616392}
@@ -3674,7 +3692,7 @@ Animator:
   m_GameObject: {fileID: 1549352702}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 0f6b827cc55bb644fb55045ddc3cd801, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 50278e6408b507e4ca9351b0f626f9a0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -3686,6 +3704,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1549352706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549352702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0789fe2659a6494c83585a25b59fd30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Model: {fileID: 1549352702}
 --- !u!1 &1562694996
 GameObject:
   m_ObjectHideFlags: 0

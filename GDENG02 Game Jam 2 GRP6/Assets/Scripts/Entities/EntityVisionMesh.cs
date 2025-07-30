@@ -283,4 +283,17 @@ public class EntityVisionMesh : MonoBehaviour
         float angleInDegrees = angleInRadians * Mathf.Rad2Deg;
         return angleInDegrees;
     }
+
+    public bool GetIsInRange()
+    {
+        return isInRange;
+    }
+    public bool GetIsInViewCone()
+    {
+        return isInViewCone;
+    }
+    public bool GetIsHidden()
+    {
+        return isHidden;
+    }
 }
