@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /*
- * Data model that holds parameters to be passed alongside observer functions
+ * Data Player that holds parameters to be passed alongside observer functions
  * 
  * Structured similary to Android's Intent class.
  * Created By: NeilDG
