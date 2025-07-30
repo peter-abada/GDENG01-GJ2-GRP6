@@ -41,6 +41,18 @@ public class FPSController : MonoBehaviour
     private float dashTime = 0f;
     private float dashCooldownTimer = 0f;
 
+    [Header("Footstep Settings")]
+    [SerializeField] private AudioSource footstepAudioSource;
+    [SerializeField] private AudioClip runningClip;
+    [SerializeField] private AudioClip walkingClip;
+    [SerializeField] private float footstepInterval = 0.4f;
+
+    private float footstepTimer = 0f;
+
+    [Header("Dash Sound")]
+    [SerializeField] private AudioSource sfxAudioSource;
+    [SerializeField] private AudioClip dashSound;
+
 
     [SerializeField]private Animator animator;
 
@@ -109,6 +121,7 @@ public class FPSController : MonoBehaviour
         }
         HandleMovement();
         HandleMouseLook();
+        HandleFootsteps();
 
         if (afterburnerTimer > 0f)
         {
@@ -175,7 +188,14 @@ public class FPSController : MonoBehaviour
             isDashing = true;
             dashTime = dashDuration;
             dashCooldownTimer = dashCooldown; // start cooldown
-
+            if (dashSound != null && sfxAudioSource != null)
+            {
+                sfxAudioSource.PlayOneShot(dashSound);
+            }
+            else
+            {
+                Debug.LogWarning("Dash sound or sfxAudioSource not assigned!");
+            }
             if (afterburner != null)
             {
                 afterburner.Play();
@@ -215,6 +235,34 @@ public class FPSController : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             //isTopDown = true;
+        }
+    }
+
+    void HandleFootsteps()
+    {
+        bool isMoving = moveInput.sqrMagnitude > 0.01f && controller.isGrounded && !isDashing;
+
+        if (isMoving)
+        {
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0f)
+            {
+                // Pick appropriate sound
+                AudioClip clipToPlay = isTopDown ? walkingClip : runningClip;
+
+                if (footstepAudioSource.clip != clipToPlay)
+                {
+                    footstepAudioSource.clip = clipToPlay;
+                }
+
+                footstepAudioSource.Play();
+                footstepTimer = footstepInterval;
+            }
+        }
+        else
+        {
+            footstepAudioSource.Stop();
+            footstepTimer = 0f;
         }
     }
 }
