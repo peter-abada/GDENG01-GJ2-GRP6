@@ -4,25 +4,17 @@ using UnityEngine;
 
 public class EntityVisionLineRender : MonoBehaviour
 {
-    private bool isInViewCone, isInRange, isHidden;
+    public bool isInViewCone, isInRange, isHidden;
     [SerializeField] public GameObject Player;
     [SerializeField] public float detectionRange;
     [SerializeField] private float viewAngle;
 
     [SerializeField] Vector3[] arcPoints;
     private LineRenderer lineRenderer;
-    private int segments = 10;
+    private int segments = 20;
     private int arcPointsSize;
     Vector3 heightOffset;
     float lookOffset = -90f;
-
-    public Material undetected;
-    public Material caution;
-    public Material detected;
-    //Debugging vars
-    public TMP_Text RangeText;
-    public TMP_Text IsHiddenText;
-    public TMP_Text InViewConeText;
 
     void Start()
     {
@@ -33,21 +25,19 @@ public class EntityVisionLineRender : MonoBehaviour
 
         heightOffset = new Vector3(0f, 1.0f, 0f);
         detectionRange = 4.0f;
-        viewAngle = 45;
-        attackCooldown = 3.5f;
-
-        //SimpleMesh();
-        //InitializeMesh();
+        viewAngle = 90;
 
         arcPointsSize = segments + 1;
         arcPoints = new Vector3[arcPointsSize];
         InitializeLineRenderer();
 
-        //CalculateArcPoints();
+        
     }
 
     void Update()
     {
+        CalculateArcPoints();
+
         isInRange = false;
         isHidden = true;
         isInViewCone = false;
@@ -59,12 +49,8 @@ public class EntityVisionLineRender : MonoBehaviour
             CheckIfHidden();
             CheckIfInViewCone();
         }
-        ViewConeColor();
 
-
-        //DrawVerticesPosition();
-        DrawArcPointsTemp();
-        DisplayOnScreen();
+        DrawArcPoints();
     }
 
     void CheckIfInRange()
@@ -77,7 +63,7 @@ public class EntityVisionLineRender : MonoBehaviour
     void CheckIfHidden()
     {
         RaycastHit hit;
-        Debug.DrawRay(transform.position + transform.up * 1f , (Player.transform.position - transform.position - transform.up * 1f), Color.blue);
+        //Debug.DrawRay(transform.position + transform.up * 1f , (Player.transform.position - transform.position - transform.up * 1f), Color.blue);
         if (Physics.Raycast(transform.position + transform.up * 1f, (Player.transform.position - transform.position - transform.up * 1f), out hit, detectionRange))
         {
             if (hit.collider.gameObject == Player)
@@ -106,15 +92,15 @@ public class EntityVisionLineRender : MonoBehaviour
 
     void CalculateArcPoints()
     {
-        float angle = viewAngle * 2f / segments - 90;
-        Vector3 offsetPosition = transform.position + new Vector3(0, 0.2f, 0);
+        float angle = viewAngle * 2f / segments;
+        Vector3 offsetPosition = transform.position + new Vector3(0, 0.3f, 0);
 
         arcPoints[0] = offsetPosition;
 
         for (int i = 1; i < segments; i++)
         {
             float newAngle = -viewAngle + angle * i;
-            Vector3 directionOfPoint = Quaternion.Euler(0, newAngle, 0) * transform.forward * detectionRange;
+            Vector3 directionOfPoint = Quaternion.Euler(0, newAngle + lookOffset, 0) * transform.forward * detectionRange;
             arcPoints[i] = offsetPosition + directionOfPoint;
         }
 
@@ -139,45 +125,11 @@ public class EntityVisionLineRender : MonoBehaviour
     }
     void DrawArcPoints()
     {
-        for (int i = 0; i < segments; i++)
+        for (int i = 0; i <= segments; i++)
         {
             lineRenderer.SetPosition(i, arcPoints[i]);
         }
-    }
-
-    void DisplayOnScreen()
-    {
-        if (isInRange)
-        {
-            RangeText.text = "In Ranges";
-            RangeText.color = Color.green;
-        }
-        else
-        {
-            RangeText.text = "Not In Range";
-            RangeText.color = Color.red;
-        }
-        if (isHidden == true)
-        {
-            IsHiddenText.text = "Is Hidden";
-            IsHiddenText.color = Color.red;
-        }
-        else if (isHidden == false)
-        {
-            IsHiddenText.text = "Is not Hidden";
-            IsHiddenText.color = Color.green;
-        }
-        if (isInViewCone)
-        {
-            InViewConeText.text = "In View Cone";
-            InViewConeText.color = Color.green;
-        }
-        else
-        {
-            InViewConeText.text = "Not In View Cone";
-            InViewConeText.color = Color.red;
-        }
-    }        
+    }   
 
     void InitializeLineRenderer()
         {
@@ -203,7 +155,7 @@ public class EntityVisionLineRender : MonoBehaviour
         return isHidden;
     }
 
-    void SetMaterial(Material material)
+    public void SetMaterial(Material material)
     {
         lineRenderer.material = material;
     }

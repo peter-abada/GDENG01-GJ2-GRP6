@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EntityController : MonoBehaviour
@@ -6,37 +7,44 @@ public class EntityController : MonoBehaviour
     public AnimController animController;
     public EntityVisionLineRender entityVision;
 
-    private bool isInViewCone, isInRange, isHidden;
+    public bool ViewCone, Range, Hidden;
+    public Material undetected;
+    public Material caution;
+    public Material detected;
     void Start()
     {
-        animController = model.GetComponent<AnimController>();
-        entityVision = model.GetComponent<EntityVisionLineRender>();
-
-        if (animController == null)
-        {
-            Debug.Log(transform.name + "animController missing");
-        }
-        if (entityVision == null)
-        {
-            Debug.Log(transform.name + "entityVision missing");
-        }
+        //animController = model.GetComponent<AnimController>();
+        //entityVision = model.GetComponent<EntityVisionLineRender>();
         
     }
 
     // Update is called once per frame
     void Update()
     {
-        isInRange = entityVision.GetIsInRange();
-        isHidden = entityVision.GetIsHidden(); 
-        isInViewCone = entityVision.GetIsInViewCone();
+        Range = entityVision.GetIsInRange();
+        Hidden = entityVision.GetIsHidden();
+        ViewCone = entityVision.GetIsInViewCone();
 
-        if (isInRange && !isInViewCone || isInRange && isHidden)
+        if (Range)
         {
             animController.Draw();
+            entityVision.SetMaterial(caution);
+            if (!Hidden && ViewCone)
+            {
+                animController.ReleaseDraw();
+                entityVision.SetMaterial(detected);
+            }
+            else if (!ViewCone && !Hidden)
+            {
+                animController.HoldDraw();
+            }
+            
         }
-        if (!isHidden && isInViewCone)
+        else
         {
-
+            animController.Idle();
+            entityVision.SetMaterial(undetected);
         }
+
     }
 }

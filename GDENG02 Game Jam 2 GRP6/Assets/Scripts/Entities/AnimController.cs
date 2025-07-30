@@ -12,18 +12,22 @@ public class AnimController : MonoBehaviour
     public void Draw()
     {
         animator.SetBool("IsDraw", true);
-        animator.SetBool("IsHoldDraw", false);
     }
     public void HoldDraw()
     {
         animator.SetBool("IsHoldDraw", true);
-        animator.SetBool("IsDraw", false);
+        animator.SetBool("IsReleaseDraw", false);
     }
     public void ReleaseDraw()
     {
         animator.SetBool("IsReleaseDraw", true);
         animator.SetBool("IsHoldDraw", false);
+    }
+    public void Idle()
+    {
         animator.SetBool("IsDraw", false);
+        animator.SetBool("IsHoldDraw", false);
+        animator.SetBool("IsReleaseDraw", false);
     }
 
     void FlipBool(string name)
